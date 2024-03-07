@@ -27,14 +27,14 @@ class AuthController extends Controller
             'name'=> 'required|string',
             'email'=> 'required|string|unique:users,email',
             'password'=> 'required|string',
-            'date_of_birth'=> 'required|string'
+            // 'date_of_birth'=> 'required|string'
         ]);
 
         $user = User::create([
             'name'=> $fields['name'],
             'email'=> $fields['email'],
             'password'=> bcrypt($fields['password']),
-            'date_of_birth'=> $fields['date_of_birth']
+            // 'date_of_birth'=> $fields['date_of_birth']
         ]);
 
         $token = $user->createToken('myapptoken')->plainTextToken;
@@ -72,27 +72,4 @@ class AuthController extends Controller
         return response()->json($data, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(User $user)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, User $user)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(User $user)
-    {
-        //
-    }
 }
