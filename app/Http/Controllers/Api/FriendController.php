@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\Friend;
 use Illuminate\Http\Request;
 
 class FriendController extends Controller
@@ -151,7 +149,6 @@ class FriendController extends Controller
 
         return response()->json($data, 201);   
     }
-
     public function deleteRequest(Request $request)
     {
         $currentUser = $request->user();
@@ -162,6 +159,9 @@ class FriendController extends Controller
 
         DB::table('friend')->where('user_id_1', $id)
             ->where('user_id_2', $user_id_2)
+            ->delete();
+        DB::table('friend')->where('user_id_2', $id)
+            ->where('user_id_1', $user_id_2)
             ->delete();
         $data = [
             "message" => "Request deleted Successfully",
