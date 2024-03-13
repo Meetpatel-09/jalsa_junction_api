@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\StoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
@@ -36,4 +37,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/acceptRequest', [FriendController::class, 'acceptRequest']);
         Route::post('/deleteRequest', [FriendController::class, 'deleteRequest']);
 
+        Route::post('/addStory', [StoryController::class, 'addStory']);
+        Route::get('/viweFriendStory', [StoryController::class, 'viweFriendStory']);
+        
 });
