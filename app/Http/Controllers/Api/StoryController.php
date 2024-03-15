@@ -58,16 +58,16 @@ class StoryController extends Controller
         $id = $currentUser->id;
 
         $results = DB::table('stories as s')
-            ->select('s.url as story_url', 'u.name as friend_name')
+            ->select('s.url as story_url', 'u.name as friend_name', 'u.profile_pic_url as profile')
             ->join(DB::raw('(SELECT
                     CASE
-                        WHEN user_id_1 = ' .$id. ' THEN user_id_2
+                        WHEN user_id_1 = ' . $id . ' THEN user_id_2
                         ELSE user_id_1
                     END AS friend_id
                 FROM
                     friend
                 WHERE
-                    (user_id_1 = ' .$id. ' OR user_id_2 = ' .$id. ')
+                    (user_id_1 = ' . $id . ' OR user_id_2 = ' . $id . ')
                     AND status = "accepted") as f'), function ($join) {
                 $join->on('s.user_id', '=', 'f.friend_id');
             })
@@ -96,14 +96,8 @@ class StoryController extends Controller
 
     public function stories($filename) {
 
-
         $path = storage_path('..\\public\\stories\\' . $filename);
         return response()->file($path);
 
-        // if (!Storage::disk('public')->exists('profile/' . $filename)) {
-        //     abort(404);
-        // }
-
-        // return response()->file($path);
     }
 }

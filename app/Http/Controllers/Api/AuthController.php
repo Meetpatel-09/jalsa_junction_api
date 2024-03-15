@@ -125,15 +125,7 @@ class AuthController extends Controller
     }
 
     public function images($filename) {
-
-
         $path = storage_path('..\\public\\profile\\' . $filename);
         return response()->file($path);
-
-        // if (!Storage::disk('public')->exists('profile/' . $filename)) {
-        //     abort(404);
-        // }
-
-        // return response()->file($path);
     }
 }
