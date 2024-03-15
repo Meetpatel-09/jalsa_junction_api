@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Validator;
 
 class AuthController extends Controller
 {
@@ -24,16 +26,16 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $fields = $request->validate([
-            'name'=> 'required|string',
-            'email'=> 'required|string|unique:users,email',
-            'password'=> 'required|string',
+            'name' => 'required|string',
+            'email' => 'required|string|unique:users,email',
+            'password' => 'required|string',
             // 'date_of_birth'=> 'required|string'
         ]);
 
         $user = User::create([
-            'name'=> $fields['name'],
-            'email'=> $fields['email'],
-            'password'=> bcrypt($fields['password']),
+            'name' => $fields['name'],
+            'email' => $fields['email'],
+            'password' => bcrypt($fields['password']),
             // 'date_of_birth'=> $fields['date_of_birth']
         ]);
 
@@ -49,8 +51,8 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $fields = $request->validate([
-            'email'=> 'required|string',
-            'password'=> 'required|string',
+            'email' => 'required|string',
+            'password' => 'required|string',
         ]);
 
 
@@ -72,4 +74,66 @@ class AuthController extends Controller
         return response()->json($data, 201);
     }
 
+    public function getProfile(Request $request)
+    {
+
+        $id = $request->user()->id;
+
+        $user = User::where("id", $id)->first();
+
+        return response()->json($user);
+    }
+
+    public function updateProfile(Request $request, User $user)
+    {
+
+        $id = $request->user()->id;
+
+        $user = User::where("id", $id)->first();
+
+        // Validate the incoming data
+        $validator = Validator::make($request->all(), [
+            'name' => 'string|max:255',
+            'bio' => 'nullable|string|max:500',
+            'date_of_birth' => 'nullable|string',
+            'profile_pic_url' => 'mimes:png,jpg,jpeg,gif'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        if ($request->hasFile('profile_pic_url')) {
+            $img = $request->file('profile_pic_url');
+            $ext = $img->getClientOriginalExtension();
+            $imageName = time() . '.' . $ext;
+            $img->move(public_path() . '/profile', $imageName);
+
+            // $user->update($request->only('name', 'bio', 'date_of_birth'));
+            $imageName = '' . $imageName;
+            $user->update([
+                'bio' => $imageName,
+            ]);
+
+            return response()->json(['message' => 'Profile updated successfully.']);
+        }
+
+        // Update the user's profile
+        $user->update($request->only('name', 'bio', 'date_of_birth'));
+
+        return response()->json(['message' => 'Profile updated successfully.']);
+    }
+
+    public function images($filename) {
+
+
+        $path = storage_path('..\\public\\profile\\' . $filename);
+        return response()->file($path);
+
+        // if (!Storage::disk('public')->exists('profile/' . $filename)) {
+        //     abort(404);
+        // }
+
+        // return response()->file($path);
+    }
 }

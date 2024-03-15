@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FriendController;
+use App\Http\Controllers\Api\PostController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,13 +22,13 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 
-
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    //     return $request->user();
-    // });
-    
 Route::group(['middleware' => ['auth:sanctum']], function () {
+
         Route::get('/users', [AuthController::class, 'index']);
+        Route::get('/getProfile', [AuthController::class, 'getProfile']);
+        Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
+
+        Route::get('/images/{filename}', [AuthController::class, 'images']);
 
         Route::get('/suggestFriends', [FriendController::class, 'suggestFriends']);
         Route::get('/getFriends', [FriendController::class, 'getFriends']);
@@ -39,5 +40,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
         Route::post('/addStory', [StoryController::class, 'addStory']);
         Route::get('/viweFriendStory', [StoryController::class, 'viweFriendStory']);
-        
+        Route::get('/stories/{filename}', [AuthController::class, 'stories']);
+
+        Route::post('/addPost', [PostController::class, 'addPost']);
+        Route::get('/viewFriendPost', [PostController::class, 'viewFriendPost']);
+        Route::get('/posts/{filename}', [AuthController::class, 'posts']);
 });

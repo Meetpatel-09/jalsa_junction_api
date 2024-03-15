@@ -20,8 +20,8 @@ class FriendController extends Controller
             ->select('id', 'name', 'profile_pic_url')
             ->whereNotIn('id', function ($query) use ($id) {
                 $query->select(DB::raw('CASE
-                    WHEN user_id_1 = 1 THEN user_id_2
-                    WHEN user_id_2 = 1 THEN user_id_1
+                    WHEN user_id_1 = ' .$id. ' THEN user_id_2
+                    WHEN user_id_2 = ' .$id. ' THEN user_id_1
                 END AS friend_id'))
                 ->from('friend')
                 ->where(function ($subquery) use ($id) {
@@ -40,16 +40,14 @@ class FriendController extends Controller
 
     public function getFriends(Request $request)
     {
-        $currentUser = $request->user();
-
         $id = $request->user()->id;
 
         $friends = DB::table('users')
             ->select('id', 'name', 'profile_pic_url')
             ->whereIn('id', function ($query) use ($id) {
                 $query->select(DB::raw('CASE
-                    WHEN user_id_1 = 1 THEN user_id_2
-                    WHEN user_id_2 = 1 THEN user_id_1
+                    WHEN user_id_1 = ' .$id. ' THEN user_id_2
+                    WHEN user_id_2 = ' .$id. ' THEN user_id_1
                 END AS friend_id'))
                 ->from('friend')
                 ->where(function ($subquery) use ($id) {
@@ -147,7 +145,7 @@ class FriendController extends Controller
             "message" => "Request accepted Successfully",
         ];
 
-        return response()->json($data, 201);   
+        return response()->json($data, 201);
     }
     public function deleteRequest(Request $request)
     {
@@ -167,6 +165,6 @@ class FriendController extends Controller
             "message" => "Request deleted Successfully",
         ];
 
-        return response()->json($data, 201);   
+        return response()->json($data, 201);
     }
 }
