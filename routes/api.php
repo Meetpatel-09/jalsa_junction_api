@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FriendController;
+use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\PostController;
 
 /*
@@ -46,4 +47,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/addPost', [PostController::class, 'addPost']);
         Route::get('/viewFriendPost', [PostController::class, 'viewFriendPost']);
         Route::get('/viewFriendPostVideo', [PostController::class, 'viewFriendPostVideo']);
+
+        Route::get('/chatDashboard', [MessageController::class, 'chatDashboard']);
+        Route::post('/sendMessage', [MessageController::class, 'sendMessage']);
+        Route::get('/getMessage/{user_id_2}', [MessageController::class, 'getMessage']);
 });
