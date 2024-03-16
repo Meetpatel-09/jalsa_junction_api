@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Validator;
 
 class AuthController extends Controller
@@ -109,10 +108,10 @@ class AuthController extends Controller
             $imageName = time() . '.' . $ext;
             $img->move(public_path() . '/profile', $imageName);
 
-            // $user->update($request->only('name', 'bio', 'date_of_birth'));
-            $imageName = '' . $imageName;
+            $user->update($request->only('name', 'bio', 'date_of_birth'));
+            $imageName = 'http://127.0.0.1:8000/api/images/' . $imageName;
             $user->update([
-                'bio' => $imageName,
+                'profile_pic_url' => $imageName,
             ]);
 
             return response()->json(['message' => 'Profile updated successfully.']);
