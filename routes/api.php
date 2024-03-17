@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\StoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -30,11 +31,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
         Route::get('/users', [AuthController::class, 'index']);
         Route::get('/getProfile', [AuthController::class, 'getProfile']);
+        Route::get('/getUserProfile/{id}', [AuthController::class, 'getUserProfile']);
         Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
-
 
         Route::get('/suggestFriends', [FriendController::class, 'suggestFriends']);
         Route::get('/getFriends', [FriendController::class, 'getFriends']);
+        Route::get('/getUserFriends/{id}', [FriendController::class, 'getUserFriends']);
         Route::get('/getFriendRequest', [FriendController::class, 'getFriendRequest']);
         Route::get('/getSendFriendRequest', [FriendController::class, 'getSendFriendRequest']);
         Route::post('/sendRequest', [FriendController::class, 'sendRequest']);
@@ -47,6 +49,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/addPost', [PostController::class, 'addPost']);
         Route::get('/viewFriendPost', [PostController::class, 'viewFriendPost']);
         Route::get('/viewFriendPostVideo', [PostController::class, 'viewFriendPostVideo']);
+        Route::post('/likePost/{postId}', [LikeController::class, 'likePost']);
+        Route::post('/unlikePost/{postId}', [LikeController::class, 'unlikePost']);
 
         Route::get('/chatDashboard', [MessageController::class, 'chatDashboard']);
         Route::post('/sendMessage', [MessageController::class, 'sendMessage']);

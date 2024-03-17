@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('stories', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
-            $table->integer('view_count');
+            $table->integer('view_count')->unsigned()->nullable()->default(0);
             $table->string('url');
             $table->timestamps();
         });

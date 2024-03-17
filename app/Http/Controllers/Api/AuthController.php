@@ -82,6 +82,20 @@ class AuthController extends Controller
 
         return response()->json($user);
     }
+    
+    public function getUserProfile($id)
+    {
+        $user = User::where("id", $id)->first();
+
+        return response()->json($user);
+    }
+    public function getPersonProfile($id)
+    {
+
+        $user = User::where("id", $id)->first();
+
+        return response()->json($user);
+    }
 
     public function updateProfile(Request $request, User $user)
     {

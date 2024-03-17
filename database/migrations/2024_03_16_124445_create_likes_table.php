@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('posts', function (Blueprint $table) {
+        Schema::create('likes', function (Blueprint $table) {
             $table->id();
+            $table->integer('post_id');
             $table->integer('user_id');
-            $table->string('description');
-            $table->string('url')->nullable()->default(NULL);;
-            $table->integer('like_count')->unsigned()->nullable()->default(0);
-            $table->string('type');
             $table->timestamps();
+
+            $table->unique(['user_id', 'post_id']); // Ensure each user can like a post only once
+    
         });
     }
 
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('posts');
+        Schema::dropIfExists('likes');
     }
 };

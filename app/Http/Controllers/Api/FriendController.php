@@ -65,6 +65,31 @@ class FriendController extends Controller
         return response()->json($data, 200);
     }
 
+    public function getUserFriends($id)
+    {
+        $friends = DB::table('users')
+            ->select('id', 'name', 'profile_pic_url')
+            ->whereIn('id', function ($query) use ($id) {
+                $query->select(DB::raw('CASE
+                    WHEN user_id_1 = ' .$id. ' THEN user_id_2
+                    WHEN user_id_2 = ' .$id. ' THEN user_id_1
+                END AS friend_id'))
+                ->from('friend')
+                ->where(function ($subquery) use ($id) {
+                    $subquery->where('user_id_1', $id)
+                        ->orWhere('user_id_2', $id);
+                })
+                ->where('status', 'accepted');
+            })
+            ->get();
+
+
+        $data = [
+            "users" => $friends,
+        ];
+        return response()->json($data, 200);
+    }
+
     public function getFriendRequest(Request $request)
     {
         $currentUser = $request->user();

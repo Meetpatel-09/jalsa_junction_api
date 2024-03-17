@@ -74,6 +74,7 @@ class PostController extends Controller
     {
         $user_id = $request->user()->id;
 
+        // Retrieve IDs of friends
         $friendIds = DB::table('friend')->where('user_id_1', $user_id)
             ->where('status', 'accepted')
             ->pluck('user_id_2')
@@ -84,12 +85,25 @@ class PostController extends Controller
             ->pluck('user_id_1')
             ->toArray());
 
+        // Retrieve liked posts by the authenticated user
+        $likedPostIds = DB::table('likes')
+            ->where('user_id', $user_id)
+            ->pluck('post_id')
+            ->toArray();
+
+        // Retrieve posts of friends and add information about whether the authenticated user has liked each post
         $posts = Post::whereIn('user_id', $friendIds)
             ->join('users', 'posts.user_id', '=', 'users.id')
-            ->select('posts.*', 'users.name', 'users.profile_pic_url')->orderBy('id','desc')
-            ->get();
+            ->select('posts.*', 'users.name', 'users.profile_pic_url')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->map(function ($post) use ($likedPostIds) {
+                $post->liked_by_user = in_array($post->id, $likedPostIds);
+                return $post;
+            });
 
         return response()->json($posts);
+
     }
 
     public function viewFriendPostVideo(Request $request)
@@ -108,10 +122,14 @@ class PostController extends Controller
 
         $posts = Post::whereIn('user_id', $friendIds)->where('type', 'video')
             ->join('users', 'posts.user_id', '=', 'users.id')
-            ->select('posts.*', 'users.name', 'users.profile_pic_url')->orderBy('id','desc')
+            ->select('posts.*', 'users.name', 'users.profile_pic_url')->orderBy('id', 'desc')
             ->get();
 
         return response()->json($posts);
+    }
+
+    public function viewUserPost(Request $request) {
+        
     }
 
     public function like(Request $request, Post $post)
@@ -124,7 +142,8 @@ class PostController extends Controller
         //
     }
 
-    public function posts($filename) {
+    public function posts($filename)
+    {
         $path = storage_path('..\\public\\posts\\' . $filename);
         return response()->file($path);
     }
