@@ -48,7 +48,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
         Route::post('/addPost', [PostController::class, 'addPost']);
         Route::get('/viewFriendPost', [PostController::class, 'viewFriendPost']);
-        Route::get('/viewUserPost', [PostController::class, 'viewUserPost']);
+        Route::get('/viewUserPost/{user1Id}', [PostController::class, 'viewUserPost']);
         Route::get('/viewFriendPostVideo', [PostController::class, 'viewFriendPostVideo']);
         Route::post('/likePost/{postId}', [LikeController::class, 'likePost']);
         Route::post('/unlikePost/{postId}', [LikeController::class, 'unlikePost']);

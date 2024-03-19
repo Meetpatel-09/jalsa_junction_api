@@ -133,22 +133,25 @@ class PostController extends Controller
         $user2Id = $request->user()->id;
 
         $posts = Post::select(
-            'posts.id as post_id',
+            'posts.id as id',
             'posts.description',
             'posts.created_at',
             'posts.url',
             'posts.like_count',
             'posts.type',
-            DB::raw('IF(likes.user_id IS NULL, 0, 1) as liked_by_user_2')
+            DB::raw('IF(likes.user_id IS NULL, 0, 1) as liked_by_user_2'),
+            'users.name as user_name',
+            'users.profile_pic_url'
         )
         ->leftJoin('likes', function ($join) use ($user2Id) {
             $join->on('posts.id', '=', 'likes.post_id')
                 ->where('likes.user_id', '=', $user2Id);
         })
+        ->leftJoin('users', 'posts.user_id', '=', 'users.id')
         ->where('posts.user_id', $user1Id)
         ->get();
 
-        return response()->json($posts);
+    return response()->json($posts);
     }
 
     public function like(Request $request, Post $post)
