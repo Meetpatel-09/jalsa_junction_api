@@ -20,14 +20,14 @@ class FriendController extends Controller
             ->select('id', 'name', 'profile_pic_url')
             ->whereNotIn('id', function ($query) use ($id) {
                 $query->select(DB::raw('CASE
-                    WHEN user_id_1 = ' .$id. ' THEN user_id_2
-                    WHEN user_id_2 = ' .$id. ' THEN user_id_1
+                    WHEN user_id_1 = ' . $id . ' THEN user_id_2
+                    WHEN user_id_2 = ' . $id . ' THEN user_id_1
                 END AS friend_id'))
-                ->from('friend')
-                ->where(function ($subquery) use ($id) {
-                    $subquery->where('user_id_1', $id)
-                        ->orWhere('user_id_2', $id);
-                });
+                    ->from('friend')
+                    ->where(function ($subquery) use ($id) {
+                        $subquery->where('user_id_1', $id)
+                            ->orWhere('user_id_2', $id);
+                    });
             })
             ->where('id', '!=', $id)
             ->get();
@@ -46,15 +46,15 @@ class FriendController extends Controller
             ->select('id', 'name', 'profile_pic_url')
             ->whereIn('id', function ($query) use ($id) {
                 $query->select(DB::raw('CASE
-                    WHEN user_id_1 = ' .$id. ' THEN user_id_2
-                    WHEN user_id_2 = ' .$id. ' THEN user_id_1
+                    WHEN user_id_1 = ' . $id . ' THEN user_id_2
+                    WHEN user_id_2 = ' . $id . ' THEN user_id_1
                 END AS friend_id'))
-                ->from('friend')
-                ->where(function ($subquery) use ($id) {
-                    $subquery->where('user_id_1', $id)
-                        ->orWhere('user_id_2', $id);
-                })
-                ->where('status', 'accepted');
+                    ->from('friend')
+                    ->where(function ($subquery) use ($id) {
+                        $subquery->where('user_id_1', $id)
+                            ->orWhere('user_id_2', $id);
+                    })
+                    ->where('status', 'accepted');
             })
             ->get();
 
@@ -65,30 +65,85 @@ class FriendController extends Controller
         return response()->json($data, 200);
     }
 
-    public function getUserFriends($id)
+    public function getUserFriends($id, Request $request)
     {
+        $requestingUserId = $request->user()->id;
+        // Retrieve friends of the user with the given ID
         $friends = DB::table('users')
             ->select('id', 'name', 'profile_pic_url')
             ->whereIn('id', function ($query) use ($id) {
                 $query->select(DB::raw('CASE
-                    WHEN user_id_1 = ' .$id. ' THEN user_id_2
-                    WHEN user_id_2 = ' .$id. ' THEN user_id_1
+                    WHEN user_id_1 = ' . $id . ' THEN user_id_2
+                    WHEN user_id_2 = ' . $id . ' THEN user_id_1
                 END AS friend_id'))
-                ->from('friend')
-                ->where(function ($subquery) use ($id) {
-                    $subquery->where('user_id_1', $id)
-                        ->orWhere('user_id_2', $id);
-                })
-                ->where('status', 'accepted');
+                    ->from('friend')
+                    ->where(function ($subquery) use ($id) {
+                        $subquery->where('user_id_1', $id)
+                            ->orWhere('user_id_2', $id);
+                    })
+                    ->where('status', 'accepted');
             })
             ->get();
 
+        // Check if the list of friends contains the requesting user
+        $requestingUserIsFriend = $friends->contains('id', $requestingUserId);
 
-        $data = [
-            "users" => $friends,
-        ];
-        return response()->json($data, 200);
+        // Check if the requesting user has sent or received friend requests with each friend
+        foreach ($friends as $friend) {
+            $friend->isFriendOfRequestingUser = DB::table('friend')
+                ->where(function ($query) use ($friend, $requestingUserId) {
+                    $query->where('user_id_1', $friend->id)
+                        ->where('user_id_2', $requestingUserId)
+                        ->orWhere('user_id_1', $requestingUserId)
+                        ->where('user_id_2', $friend->id);
+                })
+                ->where('status', 'accepted')
+                ->value('status') ?? 'not_friends';
+
+            // Check if the requesting user has sent friend requests to this friend
+            $friend->sentFriendRequestStatus = DB::table('friend')
+                ->where('user_id_1', $requestingUserId)
+                ->where('user_id_2', $friend->id)
+                ->where('status', 'pending')
+                ->value('status') ?? 'not_sent';
+
+            // Check if the requesting user has received friend requests from this friend
+            $friend->receivedFriendRequestStatus = DB::table('friend')
+                ->where('user_id_1', $friend->id)
+                ->where('user_id_2', $requestingUserId)
+                ->where('status', 'pending')
+                ->value('status') ?? 'not_received';
+
+        }
+
+        return response()->json([
+            'friends' => $friends,
+            'requesting_user_is_friend' => $requestingUserIsFriend,
+            'requesting_user_id' => $requestingUserId,
+        ], 200);
     }
+
+
+    // public function getUserFriends($id)
+    // {
+    //     $friends = DB::table('users')
+    //         ->select('id', 'name', 'profile_pic_url')
+    //         ->whereIn('id', function ($query) use ($id) {
+    //             $query->select(DB::raw('CASE
+    //                 WHEN user_id_1 = ' .$id. ' THEN user_id_2
+    //                 WHEN user_id_2 = ' .$id. ' THEN user_id_1
+    //             END AS friend_id'))
+    //             ->from('friend')
+    //             ->where(function ($subquery) use ($id) {
+    //                 $subquery->where('user_id_1', $id)
+    //                     ->orWhere('user_id_2', $id);
+    //             })
+    //             ->where('status', 'accepted');
+    //         })
+    //         ->get();
+
+    //     return response()->json($friends, 200);
+    // }
 
     public function getFriendRequest(Request $request)
     {

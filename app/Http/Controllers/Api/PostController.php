@@ -139,8 +139,8 @@ class PostController extends Controller
             'posts.url',
             'posts.like_count',
             'posts.type',
-            DB::raw('IF(likes.user_id IS NULL, 0, 1) as liked_by_user_2'),
-            'users.name as user_name',
+            DB::raw('IF(likes.user_id IS NULL, false, true) as liked_by_user'),
+            'users.name as name',
             'users.profile_pic_url'
         )
         ->leftJoin('likes', function ($join) use ($user2Id) {

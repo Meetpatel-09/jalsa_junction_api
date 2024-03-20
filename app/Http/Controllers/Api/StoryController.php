@@ -74,7 +74,30 @@ class StoryController extends Controller
             ->join('users as u', 'f.friend_id', '=', 'u.id')
             ->get();
 
-        return response()->json($results);
+        $myStroies = DB::table('stories as s')
+            ->select('s.url as story_url', 'u.name as friend_name', 'u.profile_pic_url as profile')
+            ->join('users as u', 's.user_id', '=', 'u.id')
+            ->where('s.user_id', $id)
+            ->get();
+
+        // $myStroies = array($myStroies);
+        // $results = array($results);
+        $newResult = array();
+
+        foreach ($myStroies as $result) {
+            array_push($newResult, $result);
+        }
+
+        foreach ($results as $result) {
+            array_push($newResult, $result);
+        }
+
+        return response()->json($newResult);
+
+        // return response()->json([
+        //     "myStroies" => $myStroies,
+        //     "results" => $results,
+        // ]);
     }
 
     /**
