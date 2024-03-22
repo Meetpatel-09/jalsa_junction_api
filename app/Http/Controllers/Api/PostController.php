@@ -22,17 +22,17 @@ class PostController extends Controller
         $id = $currentUser->id;
 
         $validator = Validator::make($request->all(), [
-            'description' => 'required|String',
+            'description' => 'String',
             'file' => 'mimes:png,jpg,jpeg,gif,mp4,mov,avi,wmv'
         ]);
 
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'error' => $validator->errors(),
-            ]);
-        }
+        // if ($validator->fails()) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'error' => $validator->errors(),
+        //     ]);
+        // }
 
         if ($request->hasFile('file')) {
             $f = $request->file('file');
@@ -49,12 +49,19 @@ class PostController extends Controller
             } else {
                 $post->type = "image";
             }
-            $post->save();
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Post Added Successfully'
-            ]);
+            if ($post->save()) {
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Post Added Successfully'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Post Not Added'
+                ], 401);
+            }
         }
 
 
@@ -62,12 +69,19 @@ class PostController extends Controller
         $post->user_id = $id;
         $post->description = $request->description;
         $post->type = "none";
-        $post->save();
+        
+        if ($post->save()) {
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Post Added Successfully'
-        ]);
+            return response()->json([
+                'status' => true,
+                'message' => 'Post Added Successfully'
+            ]);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Post Not Added'
+            ], 401);
+        }
     }
 
     public function viewFriendPost(Request $request)
@@ -128,7 +142,8 @@ class PostController extends Controller
         return response()->json($posts);
     }
 
-    public function viewUserPost(Request $request, $user1Id) {
+    public function viewUserPost(Request $request, $user1Id)
+    {
 
         $user2Id = $request->user()->id;
 
@@ -143,15 +158,15 @@ class PostController extends Controller
             'users.name as name',
             'users.profile_pic_url'
         )
-        ->leftJoin('likes', function ($join) use ($user2Id) {
-            $join->on('posts.id', '=', 'likes.post_id')
-                ->where('likes.user_id', '=', $user2Id);
-        })
-        ->leftJoin('users', 'posts.user_id', '=', 'users.id')
-        ->where('posts.user_id', $user1Id)
-        ->get();
+            ->leftJoin('likes', function ($join) use ($user2Id) {
+                $join->on('posts.id', '=', 'likes.post_id')
+                    ->where('likes.user_id', '=', $user2Id);
+            })
+            ->leftJoin('users', 'posts.user_id', '=', 'users.id')
+            ->where('posts.user_id', $user1Id)
+            ->get();
 
-    return response()->json($posts);
+        return response()->json($posts);
     }
 
     public function like(Request $request, Post $post)

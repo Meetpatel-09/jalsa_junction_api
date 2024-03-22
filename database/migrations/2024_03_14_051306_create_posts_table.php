@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
-            $table->string('description');
-            $table->string('url')->nullable()->default(NULL);;
+            $table->string('description')->nullable()->default(NULL);
+            $table->string('url')->nullable()->default(NULL);
             $table->integer('like_count')->unsigned()->nullable()->default(0);
             $table->string('type');
             $table->timestamps();

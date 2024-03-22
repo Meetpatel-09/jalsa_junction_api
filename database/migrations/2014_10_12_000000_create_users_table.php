@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('bio')->nullable()->default(NULL);;
+            $table->string('bio')->nullable()->default(NULL);
             $table->string('password');
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('profile_pic_url')->nullable();
+            $table->string('profile_pic_url')->nullable()->default("http://127.0.0.1:8000/api/images/user.png");
             $table->string('date_of_birth')->nullable();
             $table->tinyInteger('status')->nullable();
             $table->rememberToken();
