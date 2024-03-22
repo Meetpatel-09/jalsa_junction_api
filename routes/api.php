@@ -32,6 +32,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/users', [AuthController::class, 'index']);
         Route::get('/getProfile', [AuthController::class, 'getProfile']);
         Route::get('/getUserProfile/{id}', [AuthController::class, 'getUserProfile']);
+        Route::get('/deleteAccount/{id}', [AuthController::class, 'deleteAccount']);
         Route::post('/updateProfile', [AuthController::class, 'updateProfile']);
 
         Route::get('/suggestFriends', [FriendController::class, 'suggestFriends']);
@@ -46,11 +47,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/addStory', [StoryController::class, 'addStory']);
         Route::get('/viweFriendStory', [StoryController::class, 'viweFriendStory']);
 
+        
+        Route::get('/posts', [PostController::class, 'index']);
         Route::post('/addPost', [PostController::class, 'addPost']);
         Route::get('/viewFriendPost', [PostController::class, 'viewFriendPost']);
         Route::get('/viewUserPost/{user1Id}', [PostController::class, 'viewUserPost']);
         Route::get('/viewFriendPostVideo', [PostController::class, 'viewFriendPostVideo']);
         Route::post('/likePost/{postId}', [LikeController::class, 'likePost']);
+        Route::get('/deletePost/{id}', [PostController::class, 'deletePost']);
         Route::post('/unlikePost/{postId}', [LikeController::class, 'unlikePost']);
 
         Route::get('/chatDashboard', [MessageController::class, 'chatDashboard']);

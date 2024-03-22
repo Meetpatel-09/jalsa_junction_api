@@ -141,4 +141,15 @@ class AuthController extends Controller
         $path = storage_path('..\\public\\profile\\' . $filename);
         return response()->file($path);
     }
+
+    public function deleteAccount($id)
+    {
+        $user = User::where("id", $id)->first();
+        if (!$user) {
+            return response()->json(['message' => 'user not found'], 404);
+        }
+        $user->delete();
+
+        return response()->json(['message' => 'user deleted successfully'], 200);
+    }
 }

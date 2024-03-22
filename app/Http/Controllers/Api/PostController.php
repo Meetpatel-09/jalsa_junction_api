@@ -12,7 +12,22 @@ class PostController extends Controller
 {
     public function index()
     {
-        //
+        $posts = Post::select('posts.*', 'users.name as user_name', 'users.profile_pic_url as user_profile_pic')
+            ->join('users', 'posts.user_id', '=', 'users.id')
+            ->get();
+
+        return response()->json($posts);
+    }
+
+    public function deletePost($id)
+    {
+        $user = Post::where("id", $id)->first();
+        if (!$user) {
+            return response()->json(['message' => 'post not found'], 404);
+        }
+        $user->delete();
+
+        return response()->json(['message' => 'post deleted successfully'], 200);
     }
 
     public function addPost(Request $request)
@@ -69,7 +84,7 @@ class PostController extends Controller
         $post->user_id = $id;
         $post->description = $request->description;
         $post->type = "none";
-        
+
         if ($post->save()) {
 
             return response()->json([
